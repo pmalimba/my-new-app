@@ -44,7 +44,10 @@ main {
   font-size: 26px;
   line-height: 30px;
 }
-.weather-app-details strong {
+#humidity {
+  color: yellow;
+}
+#wind-speed {
   color: yellow;
 }
 .weather-app-temperature-container {
