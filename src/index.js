@@ -7,9 +7,9 @@ function refreshWeather(response) {
   let windSpeedElement = document.querySelector("#wind-speed");
   let date = new Date(response.data.time * 1000);
   let timeElement = document.querySelector("#time");
+  let iconElement = document.querySelector("#icon");
 
-  console.log(response.data);
-
+  iconElement.innerHTML = `<img src="${response.data.condition.icon_url}" class="weather-app-icon"/>`;
   descriptionElement.innerHTML = response.data.condition.description;
   cityElement.innerHTML = response.data.city;
   temperatureElement.innerHTML = Math.round(temperature);
@@ -29,7 +29,7 @@ function formatDate(date) {
     "Friday",
     "Saturday",
   ];
-  let day = days[date.getDate()];
+  let day = days[date.getDay()];
   if (minutes < 10) {
     minutes = `0${minutes}`;
   }
@@ -48,7 +48,33 @@ function handleSearchSubmit(event) {
   searchCity(searchInput.value);
 }
 
+function displayForecast() {
+  let forecastElement = document.querySelector("#forecast");
+
+  let days = ["Tue", "Wed", "Thu", "Fri", "Sat"];
+  let forecastHTML = "";
+
+  days.forEach(function (day) {
+    forecastHTML =
+      forecastHTML +
+      `
+  <div class="weather-forecast-day">
+    <div class="weather-forecast-date">${day}</div>
+    <div class="weather-forecast-icon">⛅</div>
+    <div class="weather-forecast-temperatures">
+      <div class="weather-forecast-temperature">
+        <strong>20°</strong>
+      </div>
+      <div class="weather-forecast-temperature">17°</div>
+    </div>
+  </div>
+`;
+  });
+  forecastElement.innerHTML = forecastHTML;
+}
+
 let searchFormElement = document.querySelector("#search-form");
 searchFormElement.addEventListener("submit", handleSearchSubmit);
 
 searchCity("");
+displayForecast();
