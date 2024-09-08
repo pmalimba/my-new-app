@@ -2,11 +2,122 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link rel="stylesheet" href="style.css" /> -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <title>mynewapp</title>
+    <style>
+        body {
+  background-color: rgb(246, 186, 246);
+}
+.weather-app {
+  background-color: rgb(155, 6, 36);
+  max-width: 600px;
+  margin: 45px auto;
+  padding: 30px;
+  box-shadow: 0 30px 50px rgba(65, 50, 100, 0.08);
+  border-radius: 16px;
+}
+header {
+  border-bottom: 1px solid #f9f7fe;
+  padding: 0 0 30px 0;
+}
+.search-form-input {
+  background-color: rgb(246, 186, 246);
+  border: none;
+  border-radius: 6px;
+  width: 80%;
+  padding: 15px 20px;
+}
+.search-form-button {
+  background-color: rgb(242, 186, 246);
+  padding: 15px 30px;
+  border: none;
+  border-radius: 6px;
+  color: rgb(161, 18, 212);
+  font-size: 16px;
+}
+.weather-app-data {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+main {
+  padding: 30px 0;
+}
+.weather-app-city {
+  margin: 0;
+  font-size: 38px;
+  line-height: 48px;
+}
+.weather-app-details {
+  font-size: 26px;
+  line-height: 30px;
+}
+#humidity {
+  color: yellow;
+}
+#wind-speed {
+  color: yellow;
+}
+.weather-app-temperature-container {
+  display: flex;
+  margin-right: 20px;
+}
+.weather-app-temperature {
+  font-size: 88px;
+  font-weight: bold;
+}
+.weather-app-icon {
+  width: 95px;
+  margin-bottom: 25px;
+}
+.weather-app-unit {
+  font-size: 28px;
+  margin-top: 15px;
+}
+.weather-forecast-container {
+  display: flex;
+  justify-content: space-around;
+}
+
+.weather-forecast {
+  padding: 5px;
+}
+
+.weather-forecast-day {
+  text-align: center;
+  color: pink;
+  font-size: 16px;
+
+  margin-bottom: 10px;
+}
+.weather-forecast-icon {
+  /* width: 88px;
+        height: 88px; */
+
+  display: block;
+  margin: 0 auto;
+}
+.weather-forecast-temperatures {
+  display: flex;
+  justify-content: center;
+  color: yellow;
+  margin-top: 5px;
+}
+.weather-forecast-temperature {
+  padding: 0 10px;
+}
+footer {
+  border-top: 1px solid #f9f7fe;
+  padding: 30px 0 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: (0 0 0 0.6);
+}
+
+    </style>
 </head>
 
 <body>
@@ -22,34 +133,134 @@
             <div class="weather-app-data">
                 <div>
                     <h1 class="weather-app-city" id="city">
-                        <p class="weather-app-details">
-
+                        <p class="weather-app-details"></p>
                     </h1>
+
                     <p>
                         <span id="time"></span>, <span id="description"></span>
                         <br />
-                        Humidity: <strong id="humidity"></strong>, Wind: <strong id="wind-speed"></strong>
+                        Humidity: <strong id="humidity"></strong>, Wind:
+                        <strong id="wind-speed"></strong>
                     </p>
                 </div>
                 <div class="weather-app-temperature-container">
                     <div id="icon"></div>
+                    <div class="weather-app-temperature" id="temperature"></div>
+                    <div class="weather-app-unit">°C</div>
                 </div>
-
-                <div class="weather-app-temperature" id="temperature"></div>
-                <div class="weather-app-unit">°C</div>
             </div>
-            <div class="weather-forecast" id="forecast">
-                     
+            <div class="weather-forecast-container" id="forecast"></div>
         </main>
         <footer>
             This project by
-            <a href="https://github.com/pmalimba" target="_blank">Paula Malimba</a> is open-sourced
-            <a href="https://github.com/pmalimba/m-t-o-app target=" _blank">on GitHub</a> and hosted on
-            <a href="https://main--m-t-o-app.netlify.app/ target=" _blank">Netlify</a>
+            <a href="https://github.com/pmalimba" target="_blank">Paula Malimba</a>
+            is open-sourced
+            <a href="https://github.com/pmalimba/m-t-o-app target=" target="_blank">on GitHub</a>
+            and hosted on
+            <a href="https://main--m-t-o-app.netlify.app/ target=" target="_blank">Netlify</a>
         </footer>
     </div>
-    </div>
-    <script src="index.js"></script>
-</body>
+    <script>
+        function refreshWeather(response) {
+            let temperatureElement = document.querySelector("#temperature");
+            let temperature = response.data.temperature.current;
+            let cityElement = document.querySelector("#city");
+            let descriptionElement = document.querySelector("#description");
+            let humidityElement = document.querySelector("#humidity");
+            let windSpeedElement = document.querySelector("#wind-speed");
+            let date = new Date(response.data.time * 1000);
+            let timeElement = document.querySelector("#time");
+            let iconElement = document.querySelector("#icon");
 
+            iconElement.innerHTML = `<img src="${response.data.condition.icon_url}" class="weather-app-icon"/>`;
+            descriptionElement.innerHTML = response.data.condition.description;
+            cityElement.innerHTML = response.data.city;
+            temperatureElement.innerHTML = Math.round(temperature);
+            humidityElement.innerHTML = `${response.data.temperature.humidity}%`;
+            windSpeedElement.innerHTML = `${response.data.wind.speed}km/h`;
+            timeElement.innerHTML = formatDate(date);
+
+            getForecast(response.data.city);
+        }
+
+        function formatDate(date) {
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            let days = [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+            ];
+            let day = days[date.getDay()];
+            if (minutes < 10) {
+                minutes = `0${minutes}`;
+            }
+            return `${day} ${hours}:${minutes}`;
+        }
+
+        function searchCity(city) {
+            let apiKey = "51035d71b84ac5cet75eof3fb55a84d0";
+            let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=metric`;
+            axios.get(apiUrl).then(refreshWeather);
+        }
+
+        function handleSearchSubmit(event) {
+            event.preventDefault();
+            let searchInput = document.querySelector("#search-form-input");
+
+            searchCity(searchInput.value);
+        }
+
+        let searchFormElement = document.querySelector("#search-form");
+        searchFormElement.addEventListener("submit", handleSearchSubmit);
+
+        searchCity("Paris");
+
+        function formatDay(timestamp) {
+            let date = new Date(timestamp * 1000);
+            let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+            return days[date.getDay()];
+        }
+
+        function getForecast(city) {
+            let apiKey = "51035d71b84ac5cet75eof3fb55a84d0";
+            let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
+
+            axios(apiUrl).then(displayForecast);
+        }
+
+        function displayForecast(response) {
+            let forecastHtml = "";
+
+            response.data.daily.forEach(function (day, index) {
+                if (index < 5) {
+                    forecastHtml =
+                        forecastHtml +
+                        `
+      <div class="weather-forecast">
+        <div class="weather-forecast-day">${formatDay(day.time)}</div>
+        <img src="${day.condition.icon_url}" class="weather-forecast-icon">
+        
+        <div class="weather-forecast-temperatures">
+          <div class="weather-forecast-temperature">
+            <strong>${Math.round(day.temperature.maximum)}</strong>
+          </div>
+          <div class="weather-forecast-temperature">
+          ${Math.round(day.temperature.minimum)}</div>
+        </div>
+      </div>
+    `;
+                    let forecastElement = document.querySelector("#forecast");
+                    forecastElement.innerHTML = forecastHtml;
+                }
+            });
+        }
+    </script>
+    <!-- <script src="index.js"></script> -->
+</body>
 </html>
